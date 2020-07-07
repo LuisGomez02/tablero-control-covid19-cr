@@ -19,19 +19,26 @@ library(dplyr)
 library(tidyr)
 library(sf)
 library(leaflet)
+library(DT)
 
 #-------------------- Colores ---------------------
 
-color_positivos <- 'blue'
+color_positivos <- 'lightblue'
 color_activos <- 'red'
 color_recuperados <- 'green'
 color_fallecidos <- 'purple'
 
-color_nuevos_positivos <- 'pink'
+color_nuevos_positivos <- ''
 
-color_hospitalizados <- 'pink'
-color_salon <- 'pink'
-color_uci <- 'pink'
+color_hospitalizados <- 'grey'
+color_salon <- 'orange'
+color_uci <- 'black'
+
+color_hombres <- 'blue'
+color_mujeres <- 'pink'
+color_ninos <- 'yellow'
+color_adultos <- 'brown'
+color_adultosmayores <- 'grey'
 
 #--------------------- Íconos ---------------------
 
@@ -47,18 +54,18 @@ icono_salon <- 'fas fa-user-md'
 icono_uci <- 'fas fa-user-md'
 
 #--------------- Otros parámetros -----------------
-
+ 
 # Separador para lectura de datos CSV
-caracter_separador <- ';'
-
+caracter_separador <- ','
+ 
 #--------------- Archivos de datos ----------------
-
-archivo_general_pais <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/06_28_CSV_GENERAL.csv'
-
-archivo_positivos_cantones <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/06_28_CSV_POSITIVOS.csv'
-archivo_activos_cantones <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/06_28_CSV_ACTIVOS.csv'
-archivo_recuperados_cantones <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/06_28_CSV_RECUP.csv'
-archivo_fallecidos_cantones <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/06_28_CSV_FALLECIDOS.csv'
+ 
+archivo_general_pais <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/06_29_CSV_GENERAL.csv'
+ 
+archivo_positivos_cantones <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/06_29_CSV_POSITIVOS.csv'
+archivo_activos_cantones <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/06_29_CSV_ACTIVOS.csv'
+archivo_recuperados_cantones <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/06_29_CSV_RECUP.csv'
+archivo_fallecidos_cantones <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/06_29_CSV_FALLECIDOS.csv'
 
 #---------------------- Datos ---------------------
 
@@ -112,7 +119,7 @@ Row
 
 ### Casos positivos {.value-box}
 ```{r}
-valueBox(value = paste(format(df_general_pais_ultima_fecha$positivos, big.mark = ","), "", sep = " "), 
+valueBox(value = paste(format(df_general_pais_ultima_fecha$positivos, big.mark = ","),  " +", format(df_general_pais_ultima_fecha$nue_posi, big.mark = ",") , sep = " "), 
          caption = "Total de casos positivos", 
          icon = icono_positivos, 
          color = color_positivos
@@ -123,7 +130,8 @@ valueBox(value = paste(format(df_general_pais_ultima_fecha$positivos, big.mark =
 ```{r}
 valueBox(value = paste(format(df_general_pais_ultima_fecha$activos, big.mark = ","), " (",
                        round(100 * df_general_pais_ultima_fecha$activos / df_general_pais_ultima_fecha$positivos, 1), 
-                       "%)", sep = ""), 
+                       "%)",  " +",
+                       format(df_general_pais_ultima_fecha$nue_acti, big.mark = ","), sep = ""), 
          caption = "Total de casos activos",
          icon = icono_positivos, 
          color = color_activos
@@ -134,7 +142,8 @@ valueBox(value = paste(format(df_general_pais_ultima_fecha$activos, big.mark = "
 ```{r}
 valueBox(value = paste(format(df_general_pais_ultima_fecha$RECUPERADOS, big.mark = ","), " (",
                        round(100 * df_general_pais_ultima_fecha$RECUPERADOS / df_general_pais_ultima_fecha$positivos, 1), 
-                       "%)", sep = ""), 
+                       "%)",  " +",
+                       format(df_general_pais_ultima_fecha$NUE_RECUP, big.mark = ","),sep = ""), 
          caption = "Total de casos recuperados",
          icon = icono_positivos, 
          color = color_recuperados
@@ -145,7 +154,8 @@ valueBox(value = paste(format(df_general_pais_ultima_fecha$RECUPERADOS, big.mark
 ```{r}
 valueBox(value = paste(format(df_general_pais_ultima_fecha$fallecidos, big.mark = ","), " (",
                        round(100 * df_general_pais_ultima_fecha$fallecidos / df_general_pais_ultima_fecha$positivos, 1), 
-                       "%)", sep = ""), 
+                       "%)",  " +",
+                       format(df_general_pais_ultima_fecha$nue_falleci, big.mark = ","),sep = ""), 
          caption = "Total de casos fallecidos",
          icon = icono_positivos, 
          color = color_fallecidos
@@ -157,7 +167,8 @@ Row
 
 ### Hospitalizados {.value-box}
 ```{r}
-valueBox(value = paste(format(df_general_pais_ultima_fecha$hospital, big.mark = ","), "", sep = " "), 
+valueBox(value = paste(format(df_general_pais_ultima_fecha$hospital, big.mark = ","),  " +",
+                       format(df_general_pais_ultima_fecha$nue_hospi, big.mark = ","), sep = " "), 
          caption = "Total de hospitalizados", 
          icon = icono_hospitalizados,
          color = color_hospitalizados
@@ -168,7 +179,8 @@ valueBox(value = paste(format(df_general_pais_ultima_fecha$hospital, big.mark = 
 ```{r}
 valueBox(value = paste(format(df_general_pais_ultima_fecha$salon, big.mark = ","), " (",
                        round(100 * df_general_pais_ultima_fecha$salon / df_general_pais_ultima_fecha$hospital, 1), 
-                       "%)", sep = ""), 
+                       "%)", " +",
+                       format(df_general_pais_ultima_fecha$nue_salon, big.mark = ","), sep = ""), 
          caption = "Hospitalizados en salón",
          icon = icono_salon, 
          color = color_salon
@@ -179,7 +191,8 @@ valueBox(value = paste(format(df_general_pais_ultima_fecha$salon, big.mark = ","
 ```{r}
 valueBox(value = paste(format(df_general_pais_ultima_fecha$UCI, big.mark = ","), " (",
                        round(100 * df_general_pais_ultima_fecha$UCI / df_general_pais_ultima_fecha$hospital, 1), 
-                       "%)", sep = ""), 
+                       "%)",  " +",
+                       format(df_general_pais_ultima_fecha$nue_UCI, big.mark = ","), sep = ""), 
          caption = "Hospitalizados en UCI",
          icon = icono_uci, 
          color = color_uci
@@ -244,6 +257,64 @@ valueBox(value = paste(format(df_general_pais_ultima_fecha$positivos, big.mark =
          caption = "Total de casos positivos", 
          icon = icono_positivos, 
          color = color_positivos
+)
+```
+
+### Casos positivos mujeres {.value-box}
+```{r}
+valueBox(value = paste(format(df_general_pais_ultima_fecha$muj_posi, big.mark = ","), " (",
+                       round(100 * df_general_pais_ultima_fecha$muj_posi / df_general_pais_ultima_fecha$positivos, 1), 
+                       "%)", sep = " "), 
+         caption = "Total de casos positivos de mujeres", 
+         icon = icono_positivos, 
+         color = color_mujeres
+)
+```
+
+### Casos positivos hombres {.value-box}
+```{r}
+valueBox(value = paste(format(df_general_pais_ultima_fecha$hom_posi, big.mark = ","), " (",
+                       round(100 * df_general_pais_ultima_fecha$hom_posi / df_general_pais_ultima_fecha$positivos, 1), 
+                       "%)", sep = " "), 
+         caption = "Total de casos positivos de hombres", 
+         icon = icono_positivos, 
+         color = color_hombres
+)
+```
+
+Row
+-----------------------------------------------------------------------
+
+### Casos positivos de adultos {.value-box}
+```{r}
+valueBox(value = paste(format(df_general_pais_ultima_fecha$adul_posi, big.mark = ","), " (",
+                       round(100 * df_general_pais_ultima_fecha$adul_posi / df_general_pais_ultima_fecha$positivos, 1), 
+                       "%)", sep = " "), 
+         caption = "Total de casos positivos de adultos", 
+         icon = icono_positivos, 
+         color = color_adultos
+)
+```
+
+### Casos positivos de adultos mayores {.value-box}
+```{r}
+valueBox(value = paste(format(df_general_pais_ultima_fecha$am_posi, big.mark = ","), " (",
+                       round(100 * df_general_pais_ultima_fecha$am_posi / df_general_pais_ultima_fecha$positivos, 1), 
+                       "%)", sep = " "), 
+         caption = "Total de casos positivos de adultos mayores", 
+         icon = icono_positivos, 
+         color = color_adultosmayores
+)
+```
+
+### Casos positivos de menores {.value-box}
+```{r}
+valueBox(value = paste(format(df_general_pais_ultima_fecha$menor_posi, big.mark = ","), " (",
+                       round(100 * df_general_pais_ultima_fecha$menor_posi / df_general_pais_ultima_fecha$positivos, 1), 
+                       "%)", sep = " "), 
+         caption = "Total de casos positivos de menores", 
+         icon = icono_positivos, 
+         color = color_ninos
 )
 ```
 
