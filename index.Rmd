@@ -288,7 +288,7 @@ Row
 
 ### Casos positivos {.value-box}
 ```{r}
-valueBox(value = paste(format(df_general_pais_ultima_fecha$positivos, big.mark = ","), "", sep = " "), 
+valueBox(value = paste(format(df_general_pais_ultima_fecha$positivos, big.mark = ","), " +", format(df_general_pais_ultima_fecha$nue_posi, big.mark = ",") , sep = " "), 
          caption = "Total de casos positivos", 
          icon = icono_positivos, 
          color = color_positivos
@@ -429,7 +429,8 @@ Row
 
 ### Casos activos {.value-box}
 ```{r}
-valueBox(value = paste(format(df_general_pais_ultima_fecha$activos, big.mark = ","), "", sep = " "), 
+valueBox(value = paste(format(df_general_pais_ultima_fecha$activos, big.mark = ","), " +",
+                       format(df_general_pais_ultima_fecha$nue_acti, big.mark = ","),  sep = " "), 
          caption = "Total de casos activos", 
          icon = icono_positivos, 
          color = color_activos
@@ -570,7 +571,8 @@ Row
 
 ### Casos recuperados {.value-box}
 ```{r}
-valueBox(value = paste(format(df_general_pais_ultima_fecha$RECUPERADOS, big.mark = ","), "", sep = " "), 
+valueBox(value = paste(format(df_general_pais_ultima_fecha$RECUPERADOS, big.mark = ","), " +",
+                       format(df_general_pais_ultima_fecha$NUE_RECUP, big.mark = ","), sep = " "), 
          caption = "Total de casos recuperados", 
          icon = icono_positivos, 
          color = color_recuperados
