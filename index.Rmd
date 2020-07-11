@@ -30,12 +30,12 @@ color_fallecidos <- 'purple'
 
 color_nuevos_positivos <- ''
 
-color_hospitalizados <- 'grey'
+color_hospitalizados <- 'tan'
 color_salon <- 'orange'
-color_uci <- 'black'
+color_uci <- 'maroon'
 
 color_hombres <- 'blue'
-color_mujeres <- 'pink'
+color_mujeres <- 'violet'
 color_ninos <- 'orange'
 color_adultos <- 'brown'
 color_adultosmayores <- 'grey'
@@ -154,7 +154,7 @@ sf_activos_cantones_ultima_fecha <-
   left_join(sf_cantones, df_activos_cantones_ultima_fecha, by = c('cod_canton')) %>%
   arrange(desc(activos))
 
-# Objeto sf de casos positivos en cantones en la última fecha
+# Objeto sf de casos recuperados en cantones en la última fecha
 sf_recuperados_cantones_ultima_fecha <-
   left_join(sf_cantones, df_recuperados_cantones_ultima_fecha, by = c('cod_canton')) %>%
   arrange(desc(recuperados))
@@ -163,6 +163,21 @@ sf_recuperados_cantones_ultima_fecha <-
 sf_fallecidos_cantones_ultima_fecha <-
   left_join(sf_cantones, df_fallecidos_cantones_ultima_fecha, by = c('cod_canton')) %>%
   arrange(desc(fallecidos))
+
+# Objeto sf de casos generales en cantones en la última fecha
+sf_general0_cantones_ultima_fecha <-
+  left_join(sf_positivos_cantones_ultima_fecha, df_activos_cantones_ultima_fecha, by = c('cod_canton')) %>%
+  arrange(desc(positivos))
+
+# Objeto sf de casos generales en cantones en la última fecha
+sf_general1_cantones_ultima_fecha <-
+  left_join(sf_general0_cantones_ultima_fecha, df_recuperados_cantones_ultima_fecha, by = c('cod_canton')) %>%
+  arrange(desc(positivos))
+
+# Objeto sf de casos generales en cantones en la última fecha
+sf_general2_cantones_ultima_fecha <-
+  left_join(sf_general1_cantones_ultima_fecha, df_fallecidos_cantones_ultima_fecha, by = c('cod_canton')) %>%
+  arrange(desc(positivos))
 
 ```
 
@@ -270,6 +285,8 @@ plot_ly(data = df_general_pais,
                 type = 'scatter',
                 mode = 'lines',
                 line = list(color = color_positivos)) %>%
+  
+  config(locale = "es") %>%
   add_trace(y = ~ activos,
                     name = 'Activos',
                     mode = 'lines',
@@ -291,12 +308,12 @@ plot_ly(data = df_general_pais,
 
 ### Tabla de cantidades de casos en cantones
 ```{r}
-st_drop_geometry(sf_positivos_cantones_ultima_fecha) %>%
-  select(Provincia = provincia, Canton = canton, Positivos = positivos) %>%
+st_drop_geometry(sf_general2_cantones_ultima_fecha) %>%
+  select(Provincia = provincia, Canton = canton, Positivos = positivos, Activos = activos, Recuperados = recuperados, Fallecidos = fallecidos) %>%
   DT::datatable(rownames = FALSE,
                 options = list(searchHighlight = TRUE, 
                                language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json')
-                               )
+                )
   )
 ```
 
